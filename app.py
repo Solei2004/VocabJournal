@@ -10,23 +10,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 第 7 行到第 11 行 ---
-st.set_page_config(
-    page_title="单词旅途 | Vocab Journey", 
-    page_icon="icon.png",
-    layout="centered"
-)  # <--- 这是第 11 行的原有反括号，不要动它
-
-# --- 从这里（第 12 行）开始粘贴补丁 ---
-st.markdown("""
-    <head>
-        <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Solei2004/VocabJournal/main/icon.png">
-        <link rel="icon" href="https://raw.githubusercontent.com/Solei2004/VocabJournal/main/icon.png">
-    </head>
-    """, unsafe_allow_html=True)
-# --- 粘贴结束 ---
-
-# --- 下面接你原来的第 13 行 ---
 st.markdown("""
     <style>
 st.markdown("""

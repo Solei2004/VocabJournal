@@ -12,8 +12,6 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-st.markdown("""
-    <style>
     .stApp { background-color: #F8FAFC; }
     .app-header {
         text-align: center; padding: 15px; color: #1E293B;

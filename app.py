@@ -3,21 +3,27 @@ import json
 import os
 from datetime import datetime
 
-# --- 1. 样式与移动端全屏优化 ---
-st.set_page_config(page_title="Encounter Vocab", page_icon="📓", layout="centered")
+# --- 1. 样式与图标配置 (图标名为 icon.png) ---
+st.set_page_config(
+    page_title="单词旅途 | Vocab Journey", 
+    page_icon="icon.png", 
+    layout="centered"
+)
 
 st.markdown("""
     <style>
     .stApp { background-color: #F8FAFC; }
-    .stButton>button { 
-        width: 100% !important; 
-        height: 50px !important; 
-        border-radius: 12px !important;
-        font-weight: 600 !important;
+    .app-header {
+        text-align: center; padding: 15px; color: #1E293B;
+        font-size: 26px; font-weight: 800; border-bottom: 2px solid #E2E8F0; margin-bottom: 25px;
     }
-    /* 教学引导框：深度逻辑还原 */
+    .stButton>button { 
+        width: 100% !important; height: 50px !important; 
+        border-radius: 12px !important; font-weight: 600 !important;
+    }
+    /* 核心深度逻辑框：严禁删减 */
     .teaching-box {
-        background: #FFFFFF; padding: 20px; border-radius: 10px;
+        background: white; padding: 20px; border-radius: 10px;
         border: 1px solid #E2E8F0; border-top: 5px solid #2563EB; margin: 15px 0;
     }
     .example-text {
@@ -32,9 +38,10 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
+    <div class="app-header">🎒 单词旅途 · Vocab Journey</div>
     """, unsafe_allow_html=True)
 
-# --- 2. 数据引擎 ---
+# --- 2. 数据处理逻辑 ---
 DATA_FILE = 'journal.json'
 IMG_DIR = 'my_photos'
 if not os.path.exists(IMG_DIR): os.makedirs(IMG_DIR)
@@ -57,13 +64,14 @@ def save_data(entries):
 
 POS_OPTIONS = ["n.", "v.", "adj.", "adv.", "prep.", "conj.", "phrase", "interj."]
 
-# --- 3. 页面构建 (Tab 模式) ---
-tab_rec, tab_his, tab_set = st.tabs(["✍️ 记录遇见", "📖 翻阅时光", "⚙️ 数据设置"])
+# --- 3. 页面构建 ---
+tab_rec, tab_his, tab_set = st.tabs(["✍️ 记录遇见", "📖 翻阅旅途", "⚙️ 系统设置"])
 
 with tab_rec:
-    with st.container(key=f"v33_form_{st.session_state.form_iteration}"):
-        st.subheader("📍 基础信息")
-        word = st.text_input("记录新单词", placeholder="如: hypocritical", key=f"w_{st.session_state.form_iteration}", disabled=st.session_state.is_saved).strip()
+    # 使用 form_iteration 确保每次点击“再记一个”都能彻底刷新 UI
+    with st.container(key=f"v36_form_{st.session_state.form_iteration}"):
+        st.subheader("📍 捕捉新单词")
+        word = st.text_input("单词", placeholder="如: hypocritical", key=f"w_{st.session_state.form_iteration}", disabled=st.session_state.is_saved).strip()
         
         for i, m in enumerate(st.session_state.means_list):
             c1, c2 = st.columns([1.2, 2.5])
@@ -73,17 +81,16 @@ with tab_rec:
         if not st.session_state.is_saved:
             b1, b2 = st.columns(2)
             if b1.button("➕ 增加词义"):
-                st.session_state.means_list.append({"pos": "adj.", "def": ""})
-                st.rerun()
+                st.session_state.means_list.append({"pos": "adj.", "def": ""}); st.rerun()
             if b2.button("➖ 移除末行") and len(st.session_state.means_list) > 1:
                 st.session_state.means_list.pop(); st.rerun()
 
         st.subheader("📷 场景化沉浸")
-        pic = st.file_uploader("上传照片", type=['jpg','png','jpeg'], key=f"pic_{st.session_state.form_iteration}", disabled=st.session_state.is_saved)
+        pic = st.file_uploader("上传现场照片", type=['jpg','png','jpeg'], key=f"pic_{st.session_state.form_iteration}", disabled=st.session_state.is_saved)
         scene = st.text_area("🚩 遇见场景", key=f"sc_{st.session_state.form_iteration}", placeholder="当时发生了什么？", disabled=st.session_state.is_saved)
-        sentence = st.text_area("✍️ 场景化造句", placeholder="描述一个冲突瞬间...", key=f"sent_{st.session_state.form_iteration}", height=100, disabled=st.session_state.is_saved)
+        sentence = st.text_area("✍️ 场景化造句", placeholder="描述一个具体的冲突瞬间...", key=f"sent_{st.session_state.form_iteration}", height=100, disabled=st.session_state.is_saved)
         
-        # --- 核心教学逻辑回归 ---
+        # --- 核心逻辑还原：严禁删减 ---
         st.markdown(f"""
             <div class="teaching-box">
                 <b>💡 为什么不能用“万能模板”造句？</b><br>
@@ -97,29 +104,34 @@ with tab_rec:
                     <ul>
                         <li><b>场景排他性：</b>“背叛”情节锁死了词义，只有“虚伪”才贴切，不可替代。</li>
                         <li><b>情感锚点：</b>通过背叛带来的愤怒感刺激大脑，加强长期记忆。</li>
-                        <li><b>双语辅助：</b>基础薄弱时，用中文铺垫冲突情景，复刻单词灵魂。</li>
+                        <li><b>双语辅助：</b>用中文铺垫冲突情景，复刻单词灵魂。</li>
                     </ul>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
     if not st.session_state.is_saved:
-        if st.button("💾 封存记录", type="primary"):
+        if st.button("💾 封存进旅途库", type="primary"):
             if word and sentence:
                 img_path = ""
                 if pic:
                     img_path = f"{IMG_DIR}/{datetime.now().timestamp()}.jpg"
                     with open(img_path, "wb") as f: f.write(pic.getbuffer())
-                data = load_data(); data.append({
-                    "id": datetime.now().strftime("%Y%m%d%H%M%S%f"), "word": word, "meanings": st.session_state.means_list,
-                    "scene": scene, "sentence": sentence, "img": img_path, "date": datetime.now().strftime("%Y-%m-%d")
+                data = load_data()
+                data.append({
+                    "id": datetime.now().strftime("%Y%m%d%H%M%S%f"),
+                    "word": word, "meanings": st.session_state.means_list,
+                    "scene": scene, "sentence": sentence, "img": img_path,
+                    "date": datetime.now().strftime("%Y-%m-%d")
                 })
                 save_data(data); st.session_state.is_saved = True; st.rerun()
     else:
-        st.success("🎉 已封存")
-        if st.button("➕ 再记一个", type="primary"):
-            st.session_state.form_iteration += 1; st.session_state.is_saved = False
-            st.session_state.means_list = [{"pos": "adj.", "def": ""}]; st.rerun()
+        st.success("🎉 记录已封存！")
+        if st.button("➕ 再开启一段新遇见", type="primary"):
+            st.session_state.form_iteration += 1
+            st.session_state.is_saved = False
+            st.session_state.means_list = [{"pos": "adj.", "def": ""}]
+            st.rerun()
 
 with tab_his:
     search = st.text_input("🔍 搜索单词、含义或场景...")
@@ -150,7 +162,7 @@ with tab_his:
             with st.expander(header):
                 if entry.get('img'): st.image(entry['img'])
                 st.caption(f"🗓️ {entry['date']}")
-                st.write(f"🚩 **场景：** {entry.get('scene', '无')}")
+                st.write(f"🚩 **遇见场景：** {entry.get('scene', '无')}")
                 for m in entry['meanings']:
                     st.markdown(f"<span class='pos-pill'>{m['pos']}</span> {m['def']}", unsafe_allow_html=True)
                 st.info(f"✍️ **造句：**\n{entry['sentence']}")
@@ -162,5 +174,5 @@ with tab_his:
 
 with tab_set:
     st.subheader("💾 数据管理")
-    st.download_button("📤 导出备份 (journal.json)", data=json.dumps(load_data(), ensure_ascii=False, indent=4), file_name="vocab_backup.json", mime="application/json")
-    st.info("💡 提示：在手机浏览器点“添加到主屏幕”即可全屏使用。")
+    st.download_button("📤 导出我的旅途备份", data=json.dumps(load_data(), ensure_ascii=False, indent=4), file_name="vocab_journey.json", mime="application/json")
+    st.info("💡 提示：在手机浏览器点“添加到主屏幕”，享受全屏 App 体验。")
